@@ -1,0 +1,11 @@
+#main {
+    text-align: center;
+    margin-left: 32px;
+    margin-right: 32px;
+}
+
+p,
+h1,
+h3 {
+    font-family: 'Comic Neue', cursive;
+}

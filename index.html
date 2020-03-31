@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vec Sandbox</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Comic+Neue&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/turbomaze/word2vecjson/data/wordvecs1000.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pca-js@1.0.0/pca.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/karpathy/tsnejs/tsne.js"></script>
+    <script src="vecutils.js"></script>
+</head>
+
+<body>
+    <div class="w3-animate-left" id="main">
+        <img src="logo.png">
+        <h1>Representing Words</h1>
+        <p>Computers think in 1s and 0s. With a bit of programming, we can use those 1s and 0s to represent virtually any number. Letters aren't that hard either - you just map each letter to a number, and that's that. But representing words in a way that
+            computers can understand has always posed a challenge. Representing words as a list of individual letters works well to an extent - it's great for humans. However, just reading a list of letters and trying to infer meaning from it is a difficult
+            task for a computer.
+        </p>
+        <p>Say you are trying to determine if two words mean the same thing. These words are represented by lists of letters, so you don't know anything about what they actually mean. The words are:</p>
+        <h3>eat</h3>
+        <p>and</p>
+        <h3>consume</h3>
+        <p>If you just compare the letters in these words, they seem nothing alike. They only have one letter in common, and that letter isn't even in the same place in both words. As one can see, letters are a less than conveinent way to represent the meaning
+            of words (at least in the eyes of a computer). So why don't we replace the letters in these words with something a computer can understand much better - numbers!
+        </p>
+        <p>Normally, when a word is dictated to a computer, each letter is translated on a one-to-one basis to a number. So a computer sees the word</p>
+        <h3>king</h3>
+        <p>as:</p>
+        <h3>107 105 110 103</h3>
+        <p>The number that each character corresponds to does have any meaning: it's just a number that was chosen by a human back in the days when computers were first emerging. What if, to better represent the word, we replaced the characters with a series
+            of numbers representing characteristics about the word.
+        </p>
+        <p>Let's say we'll represent some words using two different numbers, each representing different things:</p>
+        <h3>number 1: femininity (1 for something that directly pertains to women, or for someone who is a woman, -1 for something that directly pertains to men, or for someone who is a man)</h3>
+        <h3>number 2: power (1 for being the ruler of the world, 0 for having no power whatsoever)</h3>
+        <p>So to represent the word king, you'd use the following numbers:</p>
+        <h3>femininity: -1, power: 0.7 (a king is the ruler of a country, not the world)</h3>
+        <p>Now, you can represent many more words in a way that shows how they all relate to one another (ex. the word queen has the same power number as the king, but a femininity number is 1)</p>
+        <h3>queen - femininity: 1, power: 0.7</h3>
+        <h3>duke - femininity: -1, power: 0.4</h3>
+        <h3>duchess - femininity: 1, power: 0.4</h3>
+        <h3>peasant - femininity: 0 (as a peasant could have any gender), power: 0.05</h3>
+        <p>Each word translates to a list of two numbers - or a word vector that consists of <em>2 features</em>. While 2 features might be enough to represent a few dozen words - what about the entire english language? 2 features certaintly isn't enough.
+            What about 10? 50? 100? 300? It could be any number, but one of the most popular set of word vectors chose to use 300 features.</p>
+        <h1>Choosing Feautures</h1>
+        <p>When we were using only two features to describe words, it was pretty easy to choose meanings for our features. But what about coming up with 300 features that can describe all the words in the english language? It's a nigh-impossible task - for
+            any human that is. Google developed a technique called <code>word2vec</code> that would determine what the 300 features represented, and the values of the features for each word.</p>
+        <p>How can 300 features be assigned to represent meaningful facets of a word? One word: context. A lot of meaning can be derived about a word simply by looking at the surrounding words. Words that mean the same thing will turn up in similar contexts.
+            For example:</p>
+        <h3>I <em>consumed</em> the food.</h3>
+        <h3>I <em>ate</em> the food.</h3>
+        <p>If you train an AI to guess a word based off context, and to guess context based of a word, you can derive the intrinsic meanings of words (to a certain extent). The AI will learn to create meaningful features that are consistent across words
+            all on its own!</p>
+        <p>After analyzing a massive piece of text (called a <em>corpus</em>), the AI will generate three hundred features for each individual word. These word <em>vectors</em> can be used for a number of cool applications, as we'll see in the next two sections.</p>
+        <h3>Uses</h3>
+        <p>The main use of word vectors is of course NLP (natural language processing). A word vector can be used as the input to virtually any machine learning algorithim, and it's common for neural networks to use vectors produced by word2vec for sentiment
+            analysis, text comprehension, and text generation. Massive sets of word vectors often contain important relationships between words: If you subtract <code>France</code> from the <code>Paris</code> and add <code>Italy</code>, you get <code>Rome</code>.</p>
+        <img class="w3-border" src="relationship.png">
+        <h3>Trivial (but fun) Uses</h3>
+        <p>I loaded 1000 different word vectors into this site, and there's many different applications for them. One of the simplest ones is taking any given word vector and finding the vectors closest to it in 300-dimensional space. This often finds synonym
+            and related words. Try it out below:</p>
+        <input id="searchWord" style="width: 75%;display:inline-block" class="w3-input w3-round w3-border w3-margin" placeholder="Enter a word...">
+        <button id="nearestWords" class="w3-button w3-grey w3-hover-lightgrey">Search for Nearest Words</button>
+        <div id="nearestWordRes"></div>
+        <p>In addition, if you compress the 300-dimensional data onto a two dimensional plane (using a method called tsne, read more about it <a href="https://mlexplained.com/2018/09/14/paper-dissected-visualizing-data-using-t-sne-explained/">here</a>),
+            it leads to a stunning visualization of the relations between words:</p>
+        <canvas id="canvas"></canvas>
+        <p>And that's word vectors in a nutshell - a beautiful way to meaningfully represent words as lists of numbers.</p>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>
